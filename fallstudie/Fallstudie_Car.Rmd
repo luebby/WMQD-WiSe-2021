@@ -1,0 +1,103 @@
+---
+title: "Modellierung Autopreis"
+author: "Karsten Lübke"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Vorbereitungen: mosaic starten
+library(mosaic)
+
+# Funktion zum Testen der Vohersage
+testmse <- function(test) {
+  ywahr <- test_car$Price # Wahren Preis der Testbeobachtungen
+  abw <- ywahr - test # Abweichung zwischen y und y Dach
+  abwb <- abs(abw) # Betrag der Abweichung
+  mad <- mean( ~ abwb) # MAD
+  return(mad) # Erebnis zurückgeben
+}
+```
+
+
+# Fragestellung und Daten
+
+Wie kann der Preis eines Gebrauchtwagens modelliert werden?
+
+Die Daten dafür stammen aus dem [JSE Data Archive](http://jse.amstat.org/jse_data_archive.htm) und wurden von Shonda Kuiper zur Verfügung gestellt. Der Artikel dazu ist [https://doi.org/10.1080/10691898.2008.11889579](https://doi.org/10.1080/10691898.2008.11889579).
+
+Daten in R einlesen:
+
+```{r data-einlesen}
+Carprice <- read.csv2(here::here("data","kuiper.csv"))
+```
+
+Erste Übersicht:
+
+```{r str}
+str(Carprice)
+```
+
+Erste Beobachtungen:
+
+```{r head}
+head(Carprice)
+```
+
+[Variablenbeschreibung]((http://jse.amstat.org/datasets/kuiper%20data%20set%20desc.txt)):
+
+- `Price`: suggested retail price of the used 2005 GM car in excellent condition. The condition of a car can greatly affect price. All cars in this data set were less than one year old when priced and considered to be in excellent condition. 
+- `Mileage`: number of miles the car has been driven
+- `Make`: manufacturer of the car such as Saturn, Pontiac, and Chevrolet
+- `Model`: specific models for each car manufacturer such as Ion, Vibe, Cavalier
+- `Cylinder`: number of cylinders in the engine	
+- `Liter`: a more specific measure of engine size
+- `Doors`: number of doors
+- `Cruise`: indicator variable representing whether the car has cruise control (1 = cruise)
+- `Sound`: indicator variable representing whether the car has upgraded speakers (1 = upgraded)
+- `Leather`: indicator variable representing whether the car has leather seats (1 = leather)
+
+Um eine Vorhersagemodellierung zu simulieren wird der Datensatz künstlich in Training- und Testdaten aufgeteilt.
+
+
+```{r split, message = FALSE}
+# Reproduzierbarkeit
+set.seed(1896)
+# 500 Beobachtungen als Training
+train_car <- Carprice %>%
+  slice_sample(n = 500)
+# Restliche Beobachtungen als Test
+test_car <- Carprice %>%
+  anti_join(train_car)
+```
+
+
+# Modellierung des Preises durch gefahrene Meilen
+
+
+# Vorhersagemodellierung
+
+## Nullmodell
+
+```{r lmnull}
+# Modell
+lm_null <- lm(Price ~ 1, data = train_car)
+# Vorhersage
+pred_null <- predict(lm_null, newdata = test_car)
+# Mittlerer Vorhersagefehler
+testmse(pred_null)
+```
+
+## Modell duch Meilen
+
+```{r lmmile}
+# Modell
+lm_mile <- lm(Price ~ Mileage, data = train_car)
+# Vorhersage
+pred_mile <- predict(lm_mile, newdata = test_car)
+# Mittlerer Vorhersagefehler
+testmse(pred_mile)
+```
+
+## Ihr Modell
