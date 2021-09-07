@@ -11,7 +11,7 @@ knitr::opts_chunk$set(echo = TRUE)
 library(mosaic)
 
 # Funktion zum Testen der Vohersage
-testmse <- function(test) {
+testmad <- function(test) {
   ywahr <- test_car$Price # Wahren Preis der Testbeobachtungen
   abw <- ywahr - test # Abweichung zwischen y und y Dach
   abwb <- abs(abw) # Betrag der Abweichung
@@ -86,7 +86,7 @@ lm_null <- lm(Price ~ 1, data = train_car)
 # Vorhersage
 pred_null <- predict(lm_null, newdata = test_car)
 # Mittlerer Vorhersagefehler
-testmse(pred_null)
+testmad(pred_null)
 ```
 
 ## Modell duch Meilen
@@ -97,7 +97,7 @@ lm_mile <- lm(Price ~ Mileage, data = train_car)
 # Vorhersage
 pred_mile <- predict(lm_mile, newdata = test_car)
 # Mittlerer Vorhersagefehler
-testmse(pred_mile)
+testmad(pred_mile)
 ```
 
 ## Ihr Modell
